@@ -12,4 +12,6 @@ interface CompeticionDAO {
     fun findAll() : List<Competencia>
     @Insert
     fun insert(competencia : Competencia)
+    @Query("DELETE FROM Competencia")
+    fun nukeTable()
 }

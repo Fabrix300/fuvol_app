@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         })
+        // prueba de recollección de data desde sqlite
+        EquipoManager.getInstance().getEquiposRoom(applicationContext)
 
     }
 
@@ -78,6 +80,9 @@ class MainActivity : AppCompatActivity() {
         val db = Room.databaseBuilder(this,AppDatabase::class.java,"Futbol").fallbackToDestructiveMigration().build()
         Thread{
             val competicionDAO = db.competicionDAO()
+            // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
+            competicionDAO.nukeTable()
+            //--------------------------------------------------------------------------
             competiciones.forEach{ c : Competencias ->
                 competicionDAO.insert(
                     Competencia(

@@ -12,4 +12,6 @@ interface EquipoDAO {
     fun findAll() : List<Equipo>
     @Insert
     fun insert(equipo : Equipo)
+    @Query("DELETE FROM Equipo")
+    fun nukeTable()
 }

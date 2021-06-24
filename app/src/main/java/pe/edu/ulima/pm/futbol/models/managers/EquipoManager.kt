@@ -44,7 +44,7 @@ class EquipoManager {
                 if(response.code() == 200 && response.body() != null){
                     val ListaCompetencias = response.body()!!.teams
                     for (equi in ListaCompetencias){
-                        Log.i("waw", equi.name)
+                        Log.i("equ", equi.name)
                         equiList!!.add(equi)
                     }
                     saveEquipos(equiList!!, context)
@@ -68,11 +68,34 @@ class EquipoManager {
         this.equipos = equip
     }
 
+    fun getEquiposRoom (context: Context){
+        val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
+        Thread{
+            val equipoDAO = db.equipoDAO()
+
+            val equipoList = ArrayList<Equipos>()
+            equipoDAO.findAll().forEach{ e : Equipo ->
+                equipoList.add(Equipos(
+                    e.id,
+                    e.name,
+                    e.founded
+                )
+                )
+            }
+
+        }.start()
+    }
+
     fun saveEquipos(equipos : ArrayList<Equipos>, context : Context) {
         val db = Room.databaseBuilder(context, AppDatabase::class.java, "Futbol")
             .fallbackToDestructiveMigration().build()
         Thread {
             val equipoDAO = db.equipoDAO()
+
+            // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
+            equipoDAO.nukeTable()
+            //--------------------------------------------------------------------------
+
             equipos.forEach { e: Equipos ->
                 equipoDAO.insert(
                     Equipo(
@@ -82,6 +105,7 @@ class EquipoManager {
                     )
                 )
             }
+
         }.start()
     }
 }
