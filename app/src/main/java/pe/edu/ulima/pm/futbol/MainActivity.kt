@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,13 +32,6 @@ class MainActivity : AppCompatActivity() {
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        tvAmCompetencias!!.setOnClickListener {
-            val intent = Intent()
-            intent.setClass(this, FuvolActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
         val retrofit = ConnectionManager.getInstance().getRetrofit()
         val compeService = retrofit.create<CompeService>()
         compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
@@ -58,13 +52,19 @@ class MainActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         })
-
     }
 
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
         val rvCompetenciasAdapter = CompeticionesRVAdapter(competencias, applicationContext)
         rvCompetencias!!.layoutManager = LinearLayoutManager(applicationContext)
         rvCompetencias!!.adapter = rvCompetenciasAdapter
+    }
+
+    fun pasar(v: View){
+        val intent = Intent()
+        intent.setClass(this, FuvolActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
 }
