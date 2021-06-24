@@ -60,12 +60,10 @@ class MainActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         })
-<<<<<<< HEAD
-=======
+
         // prueba de recollección de data desde sqlite
         EquipoManager.getInstance().getEquiposRoom(applicationContext)
 
->>>>>>> avanceDiego
     }
 
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
