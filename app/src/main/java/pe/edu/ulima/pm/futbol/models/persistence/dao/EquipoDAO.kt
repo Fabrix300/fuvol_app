@@ -13,5 +13,5 @@ interface EquipoDAO {
     @Insert
     fun insert(equipo : Equipo)
     @Query("DELETE FROM Equipo")
-    fun nukeTable()
+    fun delete()
 }

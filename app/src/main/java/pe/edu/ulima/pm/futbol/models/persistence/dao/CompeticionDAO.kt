@@ -13,5 +13,5 @@ interface CompeticionDAO {
     @Insert
     fun insert(competencia : Competencia)
     @Query("DELETE FROM Competencia")
-    fun nukeTable()
+    fun delete()
 }

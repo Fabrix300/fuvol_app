@@ -14,6 +14,7 @@ import androidx.room.Room
 import pe.edu.ulima.pm.futbol.adapters.CompeticionesRVAdapter
 import pe.edu.ulima.pm.futbol.models.beans.CompeGeneral
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
+import pe.edu.ulima.pm.futbol.models.beans.Equipos
 import pe.edu.ulima.pm.futbol.models.dao.CompeService
 import pe.edu.ulima.pm.futbol.models.managers.CompeticionManager
 import pe.edu.ulima.pm.futbol.models.managers.ConnectionManager
@@ -21,6 +22,7 @@ import pe.edu.ulima.pm.futbol.models.managers.EquipoManager
 import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
 import pe.edu.ulima.pm.futbol.models.persistence.dao.CompeticionDAO
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
+import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 import retrofit2.*
 import java.util.ArrayList
 
@@ -29,12 +31,14 @@ class MainActivity : AppCompatActivity() {
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
     var compeList: ArrayList<Competencias>? = null
+    var equiList: ArrayList<Equipos>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         compeList = ArrayList<Competencias>()
+        equiList = ArrayList<Equipos>()
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
@@ -44,12 +48,19 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<CompeGeneral>, response: Response<CompeGeneral>) {
                 if(response.code() == 200 && response.body() != null){
                     val ListaCompetencias = response.body()!!.competitions
+                    var counter =1
                     for (compe in ListaCompetencias){
-                        Log.i("waw", compe.name)
+                        Log.i("waw", compe.id.toString())
                         compeList!!.add(compe)
+                        if(counter < 4){
+                            equiList = EquipoManager.getInstance().getEquipos(applicationContext,compe.id)
+                            saveEquipos(equiList!!)
+                            counter += 1
+                        }
                     }
                     CompeticionManager.getInstance().setCompeticion(compeList!!)
-                    EquipoManager.getInstance().getEquipos(applicationContext)
+
+
                     saveCompeticiones(compeList!!)
                     putDataIntoRecyclerView(compeList!!)
                 }else{
@@ -57,12 +68,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             override fun onFailure(call: Call<CompeGeneral>, t: Throwable) {
-                TODO("Not yet implemented")
+                Log.e("Error", t.message!!)
             }
         })
+        saveEquipos(equiList!!)
 
         // prueba de recollección de data desde sqlite
-        EquipoManager.getInstance().getEquiposRoom(applicationContext)
+        CompeticionManager.getInstance().getCompeticionesRoom(applicationContext)
 
     }
 
@@ -76,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         Thread{
             val competicionDAO = db.competicionDAO()
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
-            competicionDAO.nukeTable()
+            competicionDAO.delete()
             //--------------------------------------------------------------------------
             competiciones.forEach{ c : Competencias ->
                 competicionDAO.insert(
@@ -88,8 +100,29 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }.start()
+    }
 
+    fun saveEquipos(equipos : ArrayList<Equipos>) {
+        val db = Room.databaseBuilder(this, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration()
+            .build()
+        Thread {
+            val equipoDAO = db.equipoDAO()
 
+            // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
+            equipoDAO.delete()
+            //--------------------------------------------------------------------------
+
+            equipos.forEach { e: Equipos ->
+                equipoDAO.insert(
+                    Equipo(
+                        0,
+                        e.name,
+                        e.venue
+                    )
+                )
+            }
+
+        }.start()
     }
 
     fun pasar(v: View){

@@ -8,7 +8,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 
 
-@Database(entities = arrayOf(Competencia :: class, Equipo :: class), version = 2)
+@Database(entities = arrayOf(Competencia :: class, Equipo :: class), version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun competicionDAO() : CompeticionDAO
     abstract fun equipoDAO() : EquipoDAO

@@ -35,19 +35,19 @@ class EquipoManager {
         }
     }
 
-    fun getEquipos(context : Context): ArrayList<Equipos> {
+    fun getEquipos(context : Context, idComp : Int): ArrayList<Equipos> {
         equiList = ArrayList<Equipos>()
         val retrofit = ConnectionManager.getInstance().getRetrofit()
         val equipService = retrofit.create<EquipService>()
-        equipService.getEquipos().enqueue(object : Callback<EquipGeneral> {
+        equipService.getEquipos(idComp).enqueue(object : Callback<EquipGeneral> {
             override fun onResponse(call: Call<EquipGeneral>, response: Response<EquipGeneral>) {
                 if(response.code() == 200 && response.body() != null){
                     val ListaCompetencias = response.body()!!.teams
                     for (equi in ListaCompetencias){
-                        Log.i("equ", equi.name)
+                        Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}")
                         equiList!!.add(equi)
                     }
-                    saveEquipos(equiList!!, context)
+                    //saveEquipos(equiList!!, context)
                 }else{
                     Toast.makeText( context, "Error", Toast.LENGTH_SHORT).show()
                 }
@@ -56,7 +56,6 @@ class EquipoManager {
                 TODO("Not yet implemented")
             }
         })
-
         if(equipos.isNullOrEmpty()){
             return ArrayList<Equipos>()
         }else{
@@ -76,9 +75,8 @@ class EquipoManager {
             val equipoList = ArrayList<Equipos>()
             equipoDAO.findAll().forEach{ e : Equipo ->
                 equipoList.add(Equipos(
-                    e.id,
                     e.name,
-                    e.founded
+                    e.venue
                 )
                 )
             }
@@ -93,15 +91,15 @@ class EquipoManager {
             val equipoDAO = db.equipoDAO()
 
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
-            equipoDAO.nukeTable()
+            //equipoDAO.delete()
             //--------------------------------------------------------------------------
 
             equipos.forEach { e: Equipos ->
                 equipoDAO.insert(
                     Equipo(
-                        e.id,
+                        0,
                         e.name,
-                        e.founded
+                        e.venue
                     )
                 )
             }

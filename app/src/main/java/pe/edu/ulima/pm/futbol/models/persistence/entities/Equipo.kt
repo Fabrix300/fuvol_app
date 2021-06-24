@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Equipo(
-    @PrimaryKey() val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name= "name") val name : String,
-    @ColumnInfo(name = "founded") val founded : Int
+    @ColumnInfo(name = "venue") val venue : String
 )

@@ -39,6 +39,7 @@ class CompeticionManager {
                     c.numberOfAvailableSeasons
                 )
                 )
+                Log.i("room", c.name)
             }
 
         }.start()
