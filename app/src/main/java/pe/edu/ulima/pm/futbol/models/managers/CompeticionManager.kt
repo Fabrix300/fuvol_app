@@ -1,5 +1,6 @@
 package pe.edu.ulima.pm.futbol.models.managers
 
+import android.content.Context
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import java.util.ArrayList
 
@@ -18,7 +19,8 @@ class CompeticionManager {
         }
     }
 
-    fun getCompeticiones(): ArrayList<Competencias>{
+    fun getCompeticiones(context : Context): ArrayList<Competencias>{
+
         if(competiciones.isNullOrEmpty()){
             return ArrayList<Competencias>()
         }else{
@@ -29,5 +31,7 @@ class CompeticionManager {
     fun setCompeticion(competiciones: ArrayList<Competencias>){
         this.competiciones = competiciones
     }
+
+
 
 }
