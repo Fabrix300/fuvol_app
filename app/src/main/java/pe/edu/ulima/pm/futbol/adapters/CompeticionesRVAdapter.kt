@@ -27,7 +27,7 @@ class CompeticionesRVAdapter: RecyclerView.Adapter<CompeticionesRVAdapter.MyView
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.tvTitulo!!.text = competencias!!.get(position).name
-        holder.tvNroEquipos!!.text = competencias!!.get(position).numberOfAvailableSeasons.toString()
+        holder.tvNroEquipos!!.text = "Temporadas disponibles: ${competencias!!.get(position).numberOfAvailableSeasons}"
 
         //Aqui iria el listener de click
     }
