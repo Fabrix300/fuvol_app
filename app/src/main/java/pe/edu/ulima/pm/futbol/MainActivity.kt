@@ -59,10 +59,14 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     CompeticionManager.getInstance().setCompeticion(compeList!!)
-
-
                     saveCompeticiones(compeList!!)
-                    putDataIntoRecyclerView(compeList!!)
+                    // prueba de recollección de data desde sqlite
+                    CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+                        this@MainActivity.runOnUiThread(java.lang.Runnable{
+                            putDataIntoRecyclerView(competencias!!)
+                        })
+                    })
+                    //putDataIntoRecyclerView(compeList!!)
                 }else{
                     Toast.makeText( applicationContext, "Error", Toast.LENGTH_SHORT).show()
                 }
@@ -73,8 +77,7 @@ class MainActivity : AppCompatActivity() {
         })
         saveEquipos(equiList!!)
 
-        // prueba de recollección de data desde sqlite
-        CompeticionManager.getInstance().getCompeticionesRoom(applicationContext)
+
 
     }
 

@@ -6,9 +6,11 @@ import androidx.room.Room
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import pe.edu.ulima.pm.futbol.models.beans.Equipos
 import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
+import pe.edu.ulima.pm.futbol.models.persistence.dao.CompeticionDAO
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 import java.util.ArrayList
+import javax.security.auth.callback.Callback
 
 class CompeticionManager {
 
@@ -25,7 +27,7 @@ class CompeticionManager {
         }
     }
 
-    fun getCompeticionesRoom (context: Context){
+    fun getCompeticionesRoom (context: Context, callback: (ArrayList<Competencias>) -> Unit){
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
             val competicionDAO = db.competicionDAO()
@@ -41,8 +43,9 @@ class CompeticionManager {
                 )
                 Log.i("room", c.name)
             }
-
+            callback(CompeticionList)
         }.start()
+
     }
 
     fun getCompeticiones(context : Context): ArrayList<Competencias>{
