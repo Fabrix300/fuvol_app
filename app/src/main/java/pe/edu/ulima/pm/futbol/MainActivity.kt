@@ -23,6 +23,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
 import pe.edu.ulima.pm.futbol.models.persistence.dao.CompeticionDAO
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
+import pe.edu.ulima.pm.futbol.models.persistence.entities.Posicion
 import retrofit2.*
 import java.util.ArrayList
 
@@ -107,6 +108,15 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
             edit.putBoolean("FIRST_TIME", false)
             edit.commit()
 
+            //------------------------------------------------
+            PosicionManager.getInstance().getPosicionesRoom(this@MainActivity, 2016,
+                { posiciones: ArrayList<Posiciones> ->
+                    posiciones.forEach{ p : Posiciones ->
+                        Log.i("recuperadoRoomPosicion", "nombre: ${p.team.name}, posicion : ${p.position}")
+                    }
+                })
+            //------------------------------------------------
+
         }
         else{
             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
@@ -177,6 +187,37 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         }.start()
     }
 
+    fun savePosiciones(posiciones : ArrayList<Posiciones>, compId : Int, vez : Int){
+        val db = Room.databaseBuilder(this, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration()
+            .build()
+        Thread {
+            val posicionDAO = db.posicionDAO()
+
+            // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
+            if(vez == 1){
+                posicionDAO.delete()
+            }
+
+            //--------------------------------------------------------------------------
+
+            //Log.i("antes", "esto es antes del for each en guardado")
+            posiciones.forEach { p: Posiciones ->
+                posicionDAO.insert(
+                    Posicion(
+                        0,
+                        compId,
+                        p.team.name,
+                        p.points,
+                        p.position
+                    )
+                )
+                //Log.i("equipoGuardadoRoom", "${p.team.name}, $compId")
+            }
+            Log.i("despues", "esto es despues del for each en guardado")
+            db.close()
+        }.start()
+    }
+
     fun pasar(v: View){
         val intent = Intent()
         intent.setClass(this, FuvolActivity::class.java)
@@ -205,10 +246,10 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
     }
 
     override fun onSuccessPos(listaPosiciones: ArrayList<Posiciones>, compId: Int, vez: Int) {
-
-        listaPosiciones.forEach{p : Posiciones ->
+        savePosiciones(listaPosiciones, compId, vez)
+        /*listaPosiciones.forEach{p : Posiciones ->
             Log.i("peticionPosiciones", "puntaje: ${p.points}, nombre: ${p.team.name}, competicion: $compId, standing : ${p.position}")
-        }
+        }*/
 
     }
 

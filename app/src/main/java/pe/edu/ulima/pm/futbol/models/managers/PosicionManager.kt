@@ -2,10 +2,14 @@ package pe.edu.ulima.pm.futbol.models.managers
 
 import android.content.Context
 import android.widget.Toast
+import androidx.room.Room
 import pe.edu.ulima.pm.futbol.models.beans.Equipos
 import pe.edu.ulima.pm.futbol.models.beans.PosiGeneral
 import pe.edu.ulima.pm.futbol.models.beans.Posiciones
+import pe.edu.ulima.pm.futbol.models.beans.Team
 import pe.edu.ulima.pm.futbol.models.dao.PosicionesService
+import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
+import pe.edu.ulima.pm.futbol.models.persistence.entities.Posicion
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -57,5 +61,25 @@ class PosicionManager {
             }
         })
 
+    }
+
+    fun getPosicionesRoom(context: Context, compId:Int, callback: (ArrayList<Posiciones>) -> Unit){
+        val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
+        Thread{
+            val posicionDAO = db.posicionDAO()
+
+            val posicionList = ArrayList<Posiciones>()
+            posicionDAO.findByComp(compId).forEach{ p : Posicion ->
+                val team = Team(p.name)
+                posicionList.add(
+                    Posiciones(
+                        p.position,
+                        team,
+                        p.points
+                )
+                )
+            }
+            callback(posicionList)
+        }.start()
     }
 }

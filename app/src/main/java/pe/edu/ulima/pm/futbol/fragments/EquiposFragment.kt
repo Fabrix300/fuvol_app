@@ -18,7 +18,7 @@ import java.util.ArrayList
 
 class EquiposFragment: Fragment() {
 
-    var tvFeTitulo: TextView? = null
+    
     var rvEquipos : RecyclerView? = null
 
 
@@ -33,8 +33,6 @@ class EquiposFragment: Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val idCompeticion = requireArguments().getInt("idCompe")
-        tvFeTitulo = requireView().findViewById(R.id.tv_fe_titulo)
-        tvFeTitulo!!.append(idCompeticion.toString())
         rvEquipos = requireView().findViewById(R.id.rv_fe_equipos)
 
         EquipoManager.getInstance().getEquiposRoom(requireContext(), idCompeticion, {equipos : ArrayList<Equipos> ->
