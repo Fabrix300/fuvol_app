@@ -76,9 +76,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
         saveEquipos(equiList!!)
-
-
-
     }
 
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
