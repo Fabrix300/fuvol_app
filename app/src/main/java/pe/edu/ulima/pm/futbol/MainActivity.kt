@@ -19,6 +19,7 @@ import pe.edu.ulima.pm.futbol.models.dao.CompeService
 import pe.edu.ulima.pm.futbol.models.managers.CompeticionManager
 import pe.edu.ulima.pm.futbol.models.managers.ConnectionManager
 import pe.edu.ulima.pm.futbol.models.managers.EquipoManager
+import pe.edu.ulima.pm.futbol.models.managers.onGetTeamsDone
 import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
 import pe.edu.ulima.pm.futbol.models.persistence.dao.CompeticionDAO
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
@@ -26,7 +27,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 import retrofit2.*
 import java.util.ArrayList
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), onGetTeamsDone {
 
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
@@ -51,13 +52,26 @@ class MainActivity : AppCompatActivity() {
                     if(response.code() == 200 && response.body() != null){
                         val ListaCompetencias = response.body()!!.competitions
                         var counter =1
+                        val eManager = EquipoManager.getInstance()
                         for (compe in ListaCompetencias){
                             Log.i("waw", compe.id.toString())
                             compeList!!.add(compe)
                             if(counter < 4){
-                                EquipoManager.getInstance().getEquipos(this@MainActivity,compe.id, {listaEquipos : ArrayList<Equipos> ->
-                                    saveEquipos(listaEquipos!!)
-                                })
+                                /*EquipoManager.getInstance().getEquipos(this@MainActivity,compe.id, {listaEquipos : ArrayList<Equipos> ->
+                                    if(counter == 3){
+                                        for (equi in listaEquipos){
+                                            Log.i("UwU", equi.name)
+                                        }
+                                        saveEquipos(listaEquipos!!)
+                                    }
+                                })*/
+                                eManager.getEquipos(this@MainActivity,compe.id, this@MainActivity)
+                                /*if(counter == 3){
+                                    for (equi in equiList!!){
+                                        Log.i("UwU", equi.name)
+                                    }
+                                    saveEquipos(equiList!!)
+                                }*/
                                 counter += 1
                             }
                         }
@@ -161,6 +175,14 @@ class MainActivity : AppCompatActivity() {
         intent.setClass(this, FuvolActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onSuccess(listaEquipos: ArrayList<Equipos>) {
+        saveEquipos(listaEquipos)
+    }
+
+    override fun onError(msg: String) {
+        TODO("Not yet implemented")
     }
 
 }

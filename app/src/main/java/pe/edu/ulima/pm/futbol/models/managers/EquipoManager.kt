@@ -19,10 +19,15 @@ import retrofit2.Response
 import retrofit2.create
 import java.util.ArrayList
 
+interface onGetTeamsDone{
+    fun onSuccess(listaEquipos: ArrayList<Equipos>)
+    fun onError(msg: String)
+}
+
 class EquipoManager {
 
-    private var equipos : ArrayList<Equipos>? = null
-    var equiList: ArrayList<Equipos>? = null
+    private var contador = 0
+    var equipos : ArrayList<Equipos> = ArrayList<Equipos>()
 
     companion object {
         private var instance: EquipoManager? = null
@@ -35,8 +40,8 @@ class EquipoManager {
         }
     }
 
-    fun getEquipos(context : Context, idComp : Int, callback:(ArrayList<Equipos>) -> Unit){
-        //equiList = ArrayList<Equipos>()
+    fun getEquipos(context : Context, idComp : Int, callback: onGetTeamsDone){
+        //val equiList = ArrayList<Equipos>()
         val retrofit = ConnectionManager.getInstance().getRetrofit()
         val equipService = retrofit.create<EquipService>()
         equipService.getEquipos(idComp).enqueue(object : Callback<EquipGeneral> {
@@ -44,10 +49,15 @@ class EquipoManager {
                 if(response.code() == 200 && response.body() != null){
                     val ListaEquipos = response.body()!!.teams
                     for (equi in ListaEquipos){
-                        Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}, Venue : ${equi.venue}")
-                        equiList!!.add(equi)
+                        //Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}, Venue : ${equi.venue}")
+                        equipos.add(equi)
                     }
+                    contador += 1
+                    //equipos.addAll(equiList)
                     //saveEquipos(equiList!!, context)
+                    if(contador == 3){
+                        callback.onSuccess(equipos)
+                    }
                 }else{
                     Toast.makeText( context, "Error", Toast.LENGTH_SHORT).show()
                 }
@@ -56,7 +66,11 @@ class EquipoManager {
                 TODO("Not yet implemented")
             }
         })
-        callback(equiList!!)
+        //callback(equiList)
+        /*contador += 1
+        if(contador == 3){
+            saveEquipos(equipos, context)
+        }*/
     }
 
     fun setEquipo(equip: ArrayList<Equipos>){
@@ -92,6 +106,7 @@ class EquipoManager {
             //--------------------------------------------------------------------------
 
             equipos.forEach { e: Equipos ->
+                Log.i("Loque quieras", e.name)
                 equipoDAO.insert(
                     Equipo(
                         0,
