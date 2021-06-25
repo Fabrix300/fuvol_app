@@ -16,11 +16,9 @@ import pe.edu.ulima.pm.futbol.interfaces.OnCompetenciaItemClickListener
 import pe.edu.ulima.pm.futbol.models.beans.CompeGeneral
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import pe.edu.ulima.pm.futbol.models.beans.Equipos
+import pe.edu.ulima.pm.futbol.models.beans.Posiciones
 import pe.edu.ulima.pm.futbol.models.dao.CompeService
-import pe.edu.ulima.pm.futbol.models.managers.CompeticionManager
-import pe.edu.ulima.pm.futbol.models.managers.ConnectionManager
-import pe.edu.ulima.pm.futbol.models.managers.EquipoManager
-import pe.edu.ulima.pm.futbol.models.managers.onGetTeamsDone
+import pe.edu.ulima.pm.futbol.models.managers.*
 import pe.edu.ulima.pm.futbol.models.persistence.AppDatabase
 import pe.edu.ulima.pm.futbol.models.persistence.dao.CompeticionDAO
 import pe.edu.ulima.pm.futbol.models.persistence.entities.Competencia
@@ -28,7 +26,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 import retrofit2.*
 import java.util.ArrayList
 
-class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClickListener {
+class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClickListener, onGetPosicionesDone {
 
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
@@ -44,8 +42,8 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        if(getSharedPreferences("USERS_DATA",
-            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
+        if(/*getSharedPreferences("USERS_DATA",
+            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)*/ true){
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
             compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
@@ -54,6 +52,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                         val ListaCompetencias = response.body()!!.competitions
                         var counter =1
                         val eManager = EquipoManager.getInstance()
+                        val pManager = PosicionManager.getInstance()
                         for (compe in ListaCompetencias){
                             Log.i("waw", compe.id.toString())
                             compeList!!.add(compe)
@@ -67,6 +66,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                                     }
                                 })*/
                                 eManager.getEquipos(this@MainActivity,compe.id, this@MainActivity)
+                                pManager.getPosiciones(this@MainActivity, compe.id, this@MainActivity)
                                 /*if(counter == 3){
                                     for (equi in equiList!!){
                                         Log.i("UwU", equi.name)
@@ -201,6 +201,19 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         intent.putExtra("idCompe", id)
         startActivity(intent)
         finish()
+
+    }
+
+    override fun onSuccessPos(listaPosiciones: ArrayList<Posiciones>, compId: Int, vez: Int) {
+
+        listaPosiciones.forEach{p : Posiciones ->
+            Log.i("peticionPosiciones", "puntaje: ${p.points}, nombre: ${p.team.name}, competicion: $compId, standing : ${p.position}")
+        }
+
+    }
+
+    override fun onErrorPos(msg: String) {
+        TODO("Not yet implemented")
     }
 
 }

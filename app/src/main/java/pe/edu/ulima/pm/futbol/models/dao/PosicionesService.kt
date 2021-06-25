@@ -10,6 +10,6 @@ interface PosicionesService {
 
     @Headers("X-Auth-Token: 3e067ce4f4414a3e973c872a8676e630")
     @GET("v2/competitions/{id}/standings")
-    fun getEquipos(@Path("id") id : Int): Call<PosiGeneral>
+    fun getPosiciones(@Path("id") id : Int): Call<PosiGeneral>
 
 }
