@@ -42,8 +42,8 @@ class MainActivity : AppCompatActivity() {
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        if(getSharedPreferences("USERS_DATA",
-            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
+        if(/*getSharedPreferences("USERS_DATA",
+            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)*/true){
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
             compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
@@ -55,8 +55,9 @@ class MainActivity : AppCompatActivity() {
                             Log.i("waw", compe.id.toString())
                             compeList!!.add(compe)
                             if(counter < 4){
-                                equiList = EquipoManager.getInstance().getEquipos(applicationContext,compe.id)
-                                saveEquipos(equiList!!)
+                                EquipoManager.getInstance().getEquipos(this@MainActivity,compe.id, {listaEquipos : ArrayList<Equipos> ->
+                                    saveEquipos(listaEquipos!!)
+                                })
                                 counter += 1
                             }
                         }
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     Log.e("Error", t.message!!)
                 }
             })
-            saveEquipos(equiList!!)
+
             val edit = getSharedPreferences(
                 "USERS_DATA", Context.MODE_PRIVATE).edit()
             edit.putBoolean("FIRST_TIME", false)
@@ -98,6 +99,7 @@ class MainActivity : AppCompatActivity() {
                     putDataIntoRecyclerView(competencias!!)
                 })
             })
+            EquipoManager.getInstance().getEquiposRoom(this)
         }
 
     }
@@ -123,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
+            db.close()
             callback(true)
         }.start()
     }
@@ -137,6 +140,7 @@ class MainActivity : AppCompatActivity() {
             equipoDAO.delete()
             //--------------------------------------------------------------------------
 
+            Log.i("antes", "esto es antes del for each en guardado")
             equipos.forEach { e: Equipos ->
                 equipoDAO.insert(
                     Equipo(
@@ -145,8 +149,10 @@ class MainActivity : AppCompatActivity() {
                         e.venue
                     )
                 )
+                Log.i("equipoGuardadoRoom", e.name)
             }
-
+            Log.i("despues", "esto es despues del for each en guardado")
+            db.close()
         }.start()
     }
 

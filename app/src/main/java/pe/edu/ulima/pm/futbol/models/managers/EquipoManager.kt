@@ -35,16 +35,16 @@ class EquipoManager {
         }
     }
 
-    fun getEquipos(context : Context, idComp : Int): ArrayList<Equipos> {
-        equiList = ArrayList<Equipos>()
+    fun getEquipos(context : Context, idComp : Int, callback:(ArrayList<Equipos>) -> Unit){
+        //equiList = ArrayList<Equipos>()
         val retrofit = ConnectionManager.getInstance().getRetrofit()
         val equipService = retrofit.create<EquipService>()
         equipService.getEquipos(idComp).enqueue(object : Callback<EquipGeneral> {
             override fun onResponse(call: Call<EquipGeneral>, response: Response<EquipGeneral>) {
                 if(response.code() == 200 && response.body() != null){
-                    val ListaCompetencias = response.body()!!.teams
-                    for (equi in ListaCompetencias){
-                        Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}")
+                    val ListaEquipos = response.body()!!.teams
+                    for (equi in ListaEquipos){
+                        Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}, Venue : ${equi.venue}")
                         equiList!!.add(equi)
                     }
                     //saveEquipos(equiList!!, context)
@@ -56,11 +56,7 @@ class EquipoManager {
                 TODO("Not yet implemented")
             }
         })
-        if(equipos.isNullOrEmpty()){
-            return ArrayList<Equipos>()
-        }else{
-            return equipos!!
-        }
+        callback(equiList!!)
     }
 
     fun setEquipo(equip: ArrayList<Equipos>){
@@ -79,6 +75,7 @@ class EquipoManager {
                     e.venue
                 )
                 )
+                Log.i("equipoRoom", e.name)
             }
 
         }.start()

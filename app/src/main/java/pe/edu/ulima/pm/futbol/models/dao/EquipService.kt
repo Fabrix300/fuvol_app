@@ -10,7 +10,7 @@ import retrofit2.http.Path
 
 interface EquipService {
 
-    @Headers("X-Auth-Token: 6c9a41e132c54031861c0f37af5320a1")
+    @Headers("X-Auth-Token: 3e067ce4f4414a3e973c872a8676e630")
     @GET("v2/competitions/{id}/teams")
     fun getEquipos(@Path("id") id : Int): Call<EquipGeneral>
 }
