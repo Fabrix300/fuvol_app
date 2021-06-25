@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import pe.edu.ulima.pm.futbol.adapters.CompeticionesRVAdapter
-import pe.edu.ulima.pm.futbol.adapters.OnCompetenciaItemClickListener
+import pe.edu.ulima.pm.futbol.interfaces.OnCompetenciaItemClickListener
 import pe.edu.ulima.pm.futbol.models.beans.CompeGeneral
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import pe.edu.ulima.pm.futbol.models.beans.Equipos
@@ -44,8 +44,8 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        if(/*getSharedPreferences("USERS_DATA",
-            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)*/true){
+        if(getSharedPreferences("USERS_DATA",
+            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
             compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
@@ -107,7 +107,6 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
             edit.putBoolean("FIRST_TIME", false)
             edit.commit()
 
-            EquipoManager.getInstance().getEquiposRoom(this, 2013)
         }
         else{
             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
@@ -122,7 +121,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
     }
 
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
-        val rvCompetenciasAdapter = CompeticionesRVAdapter(competencias, applicationContext)
+        val rvCompetenciasAdapter = CompeticionesRVAdapter(competencias, applicationContext, this)
         rvCompetencias!!.layoutManager = LinearLayoutManager(applicationContext)
         rvCompetencias!!.adapter = rvCompetenciasAdapter
     }
@@ -190,17 +189,18 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
     }
 
     override fun onError(msg: String) {
+
         TODO("Not yet implemented")
     }
 
-    override fun onClick(competencia: Competencias) {
-        Toast.makeText(this, competencia.id, Toast.LENGTH_SHORT).show()
-        /*val id = competencia.id
+    override fun onClick(id : String) {
+        Toast.makeText(this, id, Toast.LENGTH_SHORT).show()
+        val id : Int = id.toInt()
         val intent = Intent()
         intent.setClass(this, FuvolActivity::class.java)
         intent.putExtra("idCompe", id)
         startActivity(intent)
-        finish()*/
+        finish()
     }
 
 }

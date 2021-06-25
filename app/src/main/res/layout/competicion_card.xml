@@ -25,4 +25,14 @@
         android:textColor="@color/black"
         android:textSize="15sp"/>
 
+    <TextView
+        android:id="@+id/tv_cc_id"
+        android:layout_below="@+id/tv_cc_nroEquipos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="id"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:visibility="invisible"/>
+
 </RelativeLayout>

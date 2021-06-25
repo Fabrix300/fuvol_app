@@ -75,7 +75,7 @@ class EquipoManager {
         this.equipos = equip
     }
 
-    fun getEquiposRoom (context: Context, compId: Int){
+    fun getEquiposRoom (context: Context, compId: Int, callback: (ArrayList<Equipos>) -> Unit ){
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
             val equipoDAO = db.equipoDAO()
@@ -89,7 +89,7 @@ class EquipoManager {
                 )
                 Log.i("equipoRoom", "${e.name}, $compId")
             }
-
+            callback(equipoList)
         }.start()
     }
 
