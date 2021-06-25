@@ -59,13 +59,21 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     CompeticionManager.getInstance().setCompeticion(compeList!!)
-                    saveCompeticiones(compeList!!)
+                    saveCompeticiones(compeList!!,{variable : Boolean ->
+                        CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+
+                            this@MainActivity.runOnUiThread(java.lang.Runnable{
+                                putDataIntoRecyclerView(competencias!!)
+                            })
+                        })
+                    })
                     // prueba de recollección de data desde sqlite
-                    CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+                    /*CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+
                         this@MainActivity.runOnUiThread(java.lang.Runnable{
                             putDataIntoRecyclerView(competencias!!)
                         })
-                    })
+                    })*/
                     //putDataIntoRecyclerView(compeList!!)
                 }else{
                     Toast.makeText( applicationContext, "Error", Toast.LENGTH_SHORT).show()
@@ -83,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         rvCompetencias!!.layoutManager = LinearLayoutManager(applicationContext)
         rvCompetencias!!.adapter = rvCompetenciasAdapter
     }
-    private fun saveCompeticiones(competiciones : ArrayList<Competencias>){
+    private fun saveCompeticiones(competiciones : ArrayList<Competencias>, callback: (Boolean) -> Unit){
         val db = Room.databaseBuilder(this,AppDatabase::class.java,"Futbol").fallbackToDestructiveMigration().build()
         Thread{
             val competicionDAO = db.competicionDAO()
@@ -99,6 +107,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
+            callback(true)
         }.start()
     }
 
