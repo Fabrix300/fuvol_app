@@ -15,9 +15,14 @@ import pe.edu.ulima.pm.futbol.interfaces.OnCompetenciaItemClickListener
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import java.util.ArrayList
 
-
-
 class CompeticionesRVAdapter: RecyclerView.Adapter<CompeticionesRVAdapter.MyViewHolder> {
+    /*
+    *
+    * INTEGRANTES:
+    *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
+    *  - FABRICIO SOTELO PARRA            20171497
+    *
+    * */
 
     private var context: Context? = null
     private var listener : OnCompetenciaItemClickListener? = null

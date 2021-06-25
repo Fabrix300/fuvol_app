@@ -9,7 +9,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Posicion
 interface PosicionDAO {
     @Query("SELECT * FROM Posicion")
     fun findAll() : List<Posicion>
-    @Query("SELECT * FROM Posicion WHERE compId=:compeId")
+    @Query("SELECT * FROM Posicion WHERE compId=:compeId ORDER BY position ASC")
     fun findByComp(compeId: Int) : List<Posicion>
     @Insert
     fun insert(posicion : Posicion)

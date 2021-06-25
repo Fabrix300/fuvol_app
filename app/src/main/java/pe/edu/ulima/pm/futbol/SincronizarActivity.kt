@@ -8,6 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 
 class SincronizarActivity: AppCompatActivity() {
+    /*
+    *
+    * INTEGRANTES:
+    *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
+    *  - FABRICIO SOTELO PARRA            20171497
+    *
+    * */
 
     private var tvAsSincronizar: TextView? = null
     private var btAsSincronizar: AppCompatButton? = null
@@ -21,9 +28,6 @@ class SincronizarActivity: AppCompatActivity() {
             btAsSincronizar = findViewById(R.id.bt_as_sincronizar)
 
             btAsSincronizar!!.setOnClickListener {
-                //TODO: Poner aca las 2 sincronizaciones y logica de 1era vez (Descargar las competiciones y standings de las 3 primeras)
-                //sincronizarCompeticiones()
-                //sincronizarStandings()
                 val intent = Intent()
                 intent.setClass(this, MainActivity::class.java)
                 startActivity(intent)
@@ -36,10 +40,8 @@ class SincronizarActivity: AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
-
-
     }
+
     private fun IsFirstTime() : Boolean{
         val valor = getSharedPreferences("USERS_DATA",
         Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)

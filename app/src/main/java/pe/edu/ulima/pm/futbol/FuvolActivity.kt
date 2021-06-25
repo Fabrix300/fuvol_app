@@ -13,6 +13,13 @@ import pe.edu.ulima.pm.futbol.fragments.PosicionesFragment
 import java.util.ArrayList
 
 class FuvolActivity : AppCompatActivity()  {
+    /*
+    *
+    * INTEGRANTES:
+    *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
+    *  - FABRICIO SOTELO PARRA            20171497
+    *
+    * */
 
     var fragments: ArrayList<Fragment> = ArrayList()
     var dlaFutbol: DrawerLayout? = null

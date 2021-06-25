@@ -17,6 +17,13 @@ import pe.edu.ulima.pm.futbol.models.managers.EquipoManager
 import java.util.ArrayList
 
 class EquiposFragment: Fragment() {
+    /*
+    *
+    * INTEGRANTES:
+    *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
+    *  - FABRICIO SOTELO PARRA            20171497
+    *
+    * */
 
     
     var rvEquipos : RecyclerView? = null
@@ -42,12 +49,6 @@ class EquiposFragment: Fragment() {
                 rvEquipos!!.adapter = rvEquiposAdapter
             })
         })
-    }
-
-    fun putDataIntoRecyclerView(equipos: ArrayList<Equipos>) {
-        val rvEquiposAdapter = EquiposRVAdapter(equipos, requireContext())
-        rvEquipos!!.layoutManager = LinearLayoutManager(requireContext())
-        rvEquipos!!.adapter = rvEquiposAdapter
     }
 
 }

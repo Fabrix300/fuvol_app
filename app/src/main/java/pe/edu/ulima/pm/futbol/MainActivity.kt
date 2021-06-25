@@ -28,6 +28,13 @@ import retrofit2.*
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClickListener, onGetPosicionesDone {
+    /*
+    *
+    * INTEGRANTES:
+    *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
+    *  - FABRICIO SOTELO PARRA            20171497
+    *
+    * */
 
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
@@ -43,8 +50,8 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        if(/*getSharedPreferences("USERS_DATA",
-            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)*/ true){
+        if(getSharedPreferences("USERS_DATA",
+            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
             compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
