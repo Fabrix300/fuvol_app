@@ -42,48 +42,64 @@ class MainActivity : AppCompatActivity() {
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
-        val retrofit = ConnectionManager.getInstance().getRetrofit()
-        val compeService = retrofit.create<CompeService>()
-        compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
-            override fun onResponse(call: Call<CompeGeneral>, response: Response<CompeGeneral>) {
-                if(response.code() == 200 && response.body() != null){
-                    val ListaCompetencias = response.body()!!.competitions
-                    var counter =1
-                    for (compe in ListaCompetencias){
-                        Log.i("waw", compe.id.toString())
-                        compeList!!.add(compe)
-                        if(counter < 4){
-                            equiList = EquipoManager.getInstance().getEquipos(applicationContext,compe.id)
-                            saveEquipos(equiList!!)
-                            counter += 1
+        if(getSharedPreferences("USERS_DATA",
+            Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
+            val retrofit = ConnectionManager.getInstance().getRetrofit()
+            val compeService = retrofit.create<CompeService>()
+            compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
+                override fun onResponse(call: Call<CompeGeneral>, response: Response<CompeGeneral>) {
+                    if(response.code() == 200 && response.body() != null){
+                        val ListaCompetencias = response.body()!!.competitions
+                        var counter =1
+                        for (compe in ListaCompetencias){
+                            Log.i("waw", compe.id.toString())
+                            compeList!!.add(compe)
+                            if(counter < 4){
+                                equiList = EquipoManager.getInstance().getEquipos(applicationContext,compe.id)
+                                saveEquipos(equiList!!)
+                                counter += 1
+                            }
                         }
-                    }
-                    CompeticionManager.getInstance().setCompeticion(compeList!!)
-                    saveCompeticiones(compeList!!,{variable : Boolean ->
-                        CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+                        CompeticionManager.getInstance().setCompeticion(compeList!!)
+                        saveCompeticiones(compeList!!,{variable : Boolean ->
+                            CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+
+                                this@MainActivity.runOnUiThread(java.lang.Runnable{
+                                    putDataIntoRecyclerView(competencias!!)
+                                })
+                            })
+                        })
+                        // prueba de recollección de data desde sqlite
+                        /*CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
 
                             this@MainActivity.runOnUiThread(java.lang.Runnable{
                                 putDataIntoRecyclerView(competencias!!)
                             })
-                        })
-                    })
-                    // prueba de recollección de data desde sqlite
-                    /*CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
-
-                        this@MainActivity.runOnUiThread(java.lang.Runnable{
-                            putDataIntoRecyclerView(competencias!!)
-                        })
-                    })*/
-                    //putDataIntoRecyclerView(compeList!!)
-                }else{
-                    Toast.makeText( applicationContext, "Error", Toast.LENGTH_SHORT).show()
+                        })*/
+                        //putDataIntoRecyclerView(compeList!!)
+                    }else{
+                        Toast.makeText( applicationContext, "Error", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-            override fun onFailure(call: Call<CompeGeneral>, t: Throwable) {
-                Log.e("Error", t.message!!)
-            }
-        })
-        saveEquipos(equiList!!)
+                override fun onFailure(call: Call<CompeGeneral>, t: Throwable) {
+                    Log.e("Error", t.message!!)
+                }
+            })
+            saveEquipos(equiList!!)
+            val edit = getSharedPreferences(
+                "USERS_DATA", Context.MODE_PRIVATE).edit()
+            edit.putBoolean("FIRST_TIME", false)
+            edit.commit()
+        }
+        else{
+            CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
+
+                this@MainActivity.runOnUiThread(java.lang.Runnable{
+                    putDataIntoRecyclerView(competencias!!)
+                })
+            })
+        }
+
     }
 
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
