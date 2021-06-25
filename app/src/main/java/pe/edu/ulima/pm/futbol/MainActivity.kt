@@ -105,6 +105,8 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
                 "USERS_DATA", Context.MODE_PRIVATE).edit()
             edit.putBoolean("FIRST_TIME", false)
             edit.commit()
+
+            EquipoManager.getInstance().getEquiposRoom(this, 2013)
         }
         else{
             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
@@ -113,7 +115,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
                     putDataIntoRecyclerView(competencias!!)
                 })
             })
-            EquipoManager.getInstance().getEquiposRoom(this)
+            //EquipoManager.getInstance().getEquiposRoom(this)
         }
 
     }
@@ -144,14 +146,17 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
         }.start()
     }
 
-    fun saveEquipos(equipos : ArrayList<Equipos>) {
+    fun saveEquipos(equipos : ArrayList<Equipos>, compId: Int, vez: Int) {
         val db = Room.databaseBuilder(this, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration()
             .build()
         Thread {
             val equipoDAO = db.equipoDAO()
 
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
-            equipoDAO.delete()
+            if(vez == 1){
+                equipoDAO.delete()
+            }
+
             //--------------------------------------------------------------------------
 
             Log.i("antes", "esto es antes del for each en guardado")
@@ -159,11 +164,12 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
                 equipoDAO.insert(
                     Equipo(
                         0,
+                        compId,
                         e.name,
                         e.venue
                     )
                 )
-                Log.i("equipoGuardadoRoom", e.name)
+                Log.i("equipoGuardadoRoom", "${e.name}, $compId")
             }
             Log.i("despues", "esto es despues del for each en guardado")
             db.close()
@@ -177,8 +183,8 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
         finish()
     }
 
-    override fun onSuccess(listaEquipos: ArrayList<Equipos>) {
-        saveEquipos(listaEquipos)
+    override fun onSuccess(listaEquipos: ArrayList<Equipos>, compId: Int, vez: Int) {
+        saveEquipos(listaEquipos, compId, vez)
     }
 
     override fun onError(msg: String) {

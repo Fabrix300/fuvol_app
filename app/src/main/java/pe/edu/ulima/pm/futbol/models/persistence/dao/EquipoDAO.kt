@@ -10,6 +10,8 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 interface EquipoDAO {
     @Query("SELECT * FROM Equipo")
     fun findAll() : List<Equipo>
+    @Query("SELECT * FROM Equipo WHERE compId=:compeId")
+    fun findByComp(compeId: Int) : List<Equipo>
     @Insert
     fun insert(equipo : Equipo)
     @Query("DELETE FROM Equipo")

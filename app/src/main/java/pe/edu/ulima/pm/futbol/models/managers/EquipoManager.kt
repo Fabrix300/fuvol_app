@@ -20,7 +20,7 @@ import retrofit2.create
 import java.util.ArrayList
 
 interface onGetTeamsDone{
-    fun onSuccess(listaEquipos: ArrayList<Equipos>)
+    fun onSuccess(listaEquipos: ArrayList<Equipos>, compId: Int, vez: Int)
     fun onError(msg: String)
 }
 
@@ -41,7 +41,7 @@ class EquipoManager {
     }
 
     fun getEquipos(context : Context, idComp : Int, callback: onGetTeamsDone){
-        //val equiList = ArrayList<Equipos>()
+        val equiList: ArrayList<Equipos> = ArrayList<Equipos>()
         val retrofit = ConnectionManager.getInstance().getRetrofit()
         val equipService = retrofit.create<EquipService>()
         equipService.getEquipos(idComp).enqueue(object : Callback<EquipGeneral> {
@@ -50,14 +50,12 @@ class EquipoManager {
                     val ListaEquipos = response.body()!!.teams
                     for (equi in ListaEquipos){
                         //Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}, Venue : ${equi.venue}")
-                        equipos.add(equi)
+                        equiList.add(equi)
                     }
                     contador += 1
                     //equipos.addAll(equiList)
                     //saveEquipos(equiList!!, context)
-                    if(contador == 3){
-                        callback.onSuccess(equipos)
-                    }
+                    callback.onSuccess(equiList, idComp, contador)
                 }else{
                     Toast.makeText( context, "Error", Toast.LENGTH_SHORT).show()
                 }
@@ -77,25 +75,25 @@ class EquipoManager {
         this.equipos = equip
     }
 
-    fun getEquiposRoom (context: Context){
+    fun getEquiposRoom (context: Context, compId: Int){
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
             val equipoDAO = db.equipoDAO()
 
             val equipoList = ArrayList<Equipos>()
-            equipoDAO.findAll().forEach{ e : Equipo ->
+            equipoDAO.findByComp(compId).forEach{ e : Equipo ->
                 equipoList.add(Equipos(
                     e.name,
                     e.venue
                 )
                 )
-                Log.i("equipoRoom", e.name)
+                Log.i("equipoRoom", "${e.name}, $compId")
             }
 
         }.start()
     }
 
-    fun saveEquipos(equipos : ArrayList<Equipos>, context : Context) {
+    fun saveEquipos(equipos : ArrayList<Equipos>, context : Context, compId: Int) {
         val db = Room.databaseBuilder(context, AppDatabase::class.java, "Futbol")
             .fallbackToDestructiveMigration().build()
         Thread {
@@ -110,6 +108,7 @@ class EquipoManager {
                 equipoDAO.insert(
                     Equipo(
                         0,
+                        compId,
                         e.name,
                         e.venue
                     )
