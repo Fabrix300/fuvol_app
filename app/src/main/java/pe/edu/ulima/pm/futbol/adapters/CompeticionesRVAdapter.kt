@@ -10,9 +10,14 @@ import pe.edu.ulima.pm.futbol.R
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import java.util.ArrayList
 
+interface OnCompetenciaItemClickListener {
+    fun onClick(competencia : Competencias)
+}
+
 class CompeticionesRVAdapter: RecyclerView.Adapter<CompeticionesRVAdapter.MyViewHolder> {
 
     private var context: Context? = null
+    private var listener : OnCompetenciaItemClickListener? = null
     private var competencias: ArrayList<Competencias>? =null
 
     constructor(competencias: ArrayList<Competencias>, context: Context): super(){
@@ -30,6 +35,9 @@ class CompeticionesRVAdapter: RecyclerView.Adapter<CompeticionesRVAdapter.MyView
         holder.tvNroEquipos!!.text = "Temporadas disponibles: ${competencias!!.get(position).numberOfAvailableSeasons}"
 
         //Aqui iria el listener de click
+        holder.itemView.setOnClickListener { v : View ->
+            listener!!.onClick(competencias!![position])
+        }
     }
 
     override fun getItemCount(): Int {

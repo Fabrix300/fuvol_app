@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import pe.edu.ulima.pm.futbol.adapters.CompeticionesRVAdapter
+import pe.edu.ulima.pm.futbol.adapters.OnCompetenciaItemClickListener
 import pe.edu.ulima.pm.futbol.models.beans.CompeGeneral
 import pe.edu.ulima.pm.futbol.models.beans.Competencias
 import pe.edu.ulima.pm.futbol.models.beans.Equipos
@@ -27,7 +28,7 @@ import pe.edu.ulima.pm.futbol.models.persistence.entities.Equipo
 import retrofit2.*
 import java.util.ArrayList
 
-class MainActivity : AppCompatActivity(), onGetTeamsDone {
+class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClickListener {
 
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
@@ -125,6 +126,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
         rvCompetencias!!.layoutManager = LinearLayoutManager(applicationContext)
         rvCompetencias!!.adapter = rvCompetenciasAdapter
     }
+
     private fun saveCompeticiones(competiciones : ArrayList<Competencias>, callback: (Boolean) -> Unit){
         val db = Room.databaseBuilder(this,AppDatabase::class.java,"Futbol").fallbackToDestructiveMigration().build()
         Thread{
@@ -189,6 +191,16 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone {
 
     override fun onError(msg: String) {
         TODO("Not yet implemented")
+    }
+
+    override fun onClick(competencia: Competencias) {
+        Toast.makeText(this, competencia.id, Toast.LENGTH_SHORT).show()
+        /*val id = competencia.id
+        val intent = Intent()
+        intent.setClass(this, FuvolActivity::class.java)
+        intent.putExtra("idCompe", id)
+        startActivity(intent)
+        finish()*/
     }
 
 }

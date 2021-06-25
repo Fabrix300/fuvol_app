@@ -16,6 +16,7 @@ class FuvolActivity : AppCompatActivity()  {
 
     var fragments: ArrayList<Fragment> = ArrayList()
     var dlaFutbol: DrawerLayout? = null
+    var idCompe: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +24,13 @@ class FuvolActivity : AppCompatActivity()  {
 
         fragments.add(EquiposFragment())
         fragments.add(PosicionesFragment())
+
+        idCompe = intent.getIntExtra("idCompe", 0)
+        val bundle : Bundle = Bundle()
+        bundle.putInt("idCompe", idCompe)
+
+        fragments[0].arguments = bundle
+        fragments[1].arguments = bundle
 
         val nviMain = findViewById<NavigationView>(R.id.nviFutbol)
         dlaFutbol = findViewById(R.id.dlaFutbol)
