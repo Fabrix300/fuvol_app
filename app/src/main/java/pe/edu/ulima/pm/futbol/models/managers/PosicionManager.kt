@@ -62,13 +62,16 @@ class PosicionManager {
         })
 
     }
-
+    //esta funcion trae una lista de posiciones desde el SQLite
     fun getPosicionesRoom(context: Context, compId:Int, callback: (ArrayList<Posiciones>) -> Unit){
+        //hacemos la conexion por Room al SQLite
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
+            //instanciamos el DAO
             val posicionDAO = db.posicionDAO()
-
+            //instanciamos la lista de posiciones
             val posicionList = ArrayList<Posiciones>()
+            //traemos la posicion, el team interno y los puntos de cada posicion de forma ordenada declarada en el DAO
             posicionDAO.findByComp(compId).forEach{ p : Posicion ->
                 val team = Team(p.name)
                 posicionList.add(
@@ -79,6 +82,7 @@ class PosicionManager {
                 )
                 )
             }
+            //retornamos en callback la lista de posiciones traida del SQLite
             callback(posicionList)
         }.start()
     }

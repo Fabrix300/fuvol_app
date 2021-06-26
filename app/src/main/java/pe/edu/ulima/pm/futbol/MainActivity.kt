@@ -61,6 +61,9 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         // de Room en caso sea falso.
         if(getSharedPreferences("USERS_DATA",
             Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
+
+            //toda esta sección, o gran parte, debería estar en el CompeticionManager, pero por cuestion de trabajo
+            //se dejó dentro del activity
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
             //Con este servicio de Retrofit compService, hacemos un call al api para obtener las competiciones
@@ -86,26 +89,14 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                             // "getPosiciones" de sus respectivos singleton (Managers) para que traigan los equipos y las
                             //listas de posiciones de la respectiva competencia tomada en este for en el que nos encontramos.
                             if(counter < 4){
-                                /*EquipoManager.getInstance().getEquipos(this@MainActivity,compe.id, {listaEquipos : ArrayList<Equipos> ->
-                                    if(counter == 3){
-                                        for (equi in listaEquipos){
-                                            Log.i("UwU", equi.name)
-                                        }
-                                        saveEquipos(listaEquipos!!)
-                                    }
-                                })*/
+
 
                                 //Llamamos a los métodos de los managers de "Equipos" y "Posiciones",
                                 //utilizando el id de la competicion para hacer las consultas a la api respectivas,
                                 // puesto que estas consultas a la api necesitan de la id de la competición
                                 eManager.getEquipos(this@MainActivity,compe.id, this@MainActivity)
                                 pManager.getPosiciones(this@MainActivity, compe.id, this@MainActivity)
-                                /*if(counter == 3){
-                                    for (equi in equiList!!){
-                                        Log.i("UwU", equi.name)
-                                    }
-                                    saveEquipos(equiList!!)
-                                }*/
+
 
                                 //Sumamos el counter para que solo podamos llegar a 3 en este if, y solo ejecutar las consultas
                                 // de equipos y posiciones para las 3 primeras competiciones
@@ -116,71 +107,63 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                         // en su variable "competiciones"
                         CompeticionManager.getInstance().setCompeticion(compeList!!)
                         //Llamamos a la función saveCompeticiones...............................................
-                        saveCompeticiones(compeList!!,{variable : Boolean ->
+                        saveCompeticiones(compeList!!,{variable : Boolean -> //esto se ejecutará como callback tras finalizar el Thread del save
                             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
-
+                                //esto se ejecutará como callback tras finalizar el Thread del get del room
+                                //lo corremos como UiThread ya que no se puede acceder a componentes del view en un thread aparte del principal
                                 this@MainActivity.runOnUiThread(java.lang.Runnable{
+                                    //instanciamos el recyclerView con sus componentes de la lista
                                     putDataIntoRecyclerView(competencias!!)
                                 })
                             })
                         })
-                        // prueba de recollección de data desde sqlite
-                        /*CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
 
-                            this@MainActivity.runOnUiThread(java.lang.Runnable{
-                                putDataIntoRecyclerView(competencias!!)
-                            })
-                        })*/
-                        //putDataIntoRecyclerView(compeList!!)
                     }else{
+                        //esto se llama en caso falle la respuesta
                         Toast.makeText( applicationContext, "Error", Toast.LENGTH_SHORT).show()
                     }
                 }
+                //esto se ejecuta en caso falle el call
                 override fun onFailure(call: Call<CompeGeneral>, t: Throwable) {
                     Log.e("Error", t.message!!)
                 }
             })
-
+            //editamos el sharedPreference para que ya no vuelva a ejecutar esto al crear la activityMain
             val edit = getSharedPreferences(
                 "USERS_DATA", Context.MODE_PRIVATE).edit()
             edit.putBoolean("FIRST_TIME", false)
             edit.commit()
-
-            //------------------------------------------------
-            PosicionManager.getInstance().getPosicionesRoom(this@MainActivity, 2016,
-                { posiciones: ArrayList<Posiciones> ->
-                    posiciones.forEach{ p : Posiciones ->
-                        Log.i("recuperadoRoomPosicion", "nombre: ${p.team.name}, posicion : ${p.position}")
-                    }
-                })
-            //------------------------------------------------
-
         }
         else{
+            //esto lo haremos si ya hay data guardada en el room
             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
-
+                //aqui cargaremos la data del room en el recyclerView del activity
                 this@MainActivity.runOnUiThread(java.lang.Runnable{
                     putDataIntoRecyclerView(competencias!!)
                 })
             })
-            //EquipoManager.getInstance().getEquiposRoom(this)
         }
-
     }
-
+    //esta es la funcion donde mostraremos una lista en el recyclerView
     fun putDataIntoRecyclerView(competencias: ArrayList<Competencias>) {
+        //instanciamos el RVAdapter
         val rvCompetenciasAdapter = CompeticionesRVAdapter(competencias, applicationContext, this)
+        //Asignamos el layoutManager y su adapter al recyclerView
         rvCompetencias!!.layoutManager = LinearLayoutManager(applicationContext)
         rvCompetencias!!.adapter = rvCompetenciasAdapter
     }
-
+    //esta funcion debería estar en el CompeticionManager
+    //aquí guardaremos una lista de competiciones en el Room (SQLite) de la aplicacion
     private fun saveCompeticiones(competiciones : ArrayList<Competencias>, callback: (Boolean) -> Unit){
+        //creamos el databaseBuilder con Room
         val db = Room.databaseBuilder(this,AppDatabase::class.java,"Futbol").fallbackToDestructiveMigration().build()
         Thread{
+            //instanciamos el DAO desde el db
             val competicionDAO = db.competicionDAO()
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
             competicionDAO.delete()
             //--------------------------------------------------------------------------
+            //por cada competencia de la lista lo guardaremos como un entity Competencia
             competiciones.forEach{ c : Competencias ->
                 competicionDAO.insert(
                     Competencia(
@@ -191,10 +174,14 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                 )
             }
             db.close()
+            //hacemos el callback con un valor True solamente para avisar que ya se guardo
             callback(true)
         }.start()
     }
 
+    //igualmente al saveCompetencias, esta funcion deberia estar en EquipoManager
+    //por lo demas, es muy similar a la funcion saveCompeticiones, solo que esta funcion recibe un parametro extra
+    //que nos sirve para hacer un delete solo la primera vez
     fun saveEquipos(equipos : ArrayList<Equipos>, compId: Int, vez: Int) {
         val db = Room.databaseBuilder(this, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration()
             .build()
@@ -202,43 +189,39 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
             val equipoDAO = db.equipoDAO()
 
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
+            //este if solo hara el delete de la tabla la primera vez que se quiere guardar en la tabla
             if(vez == 1){
                 equipoDAO.delete()
             }
-
             //--------------------------------------------------------------------------
 
-            Log.i("antes", "esto es antes del for each en guardado")
             equipos.forEach { e: Equipos ->
                 equipoDAO.insert(
                     Equipo(
+                        //asignamos ID 0 ya que se autogenera
                         0,
+                        //segun el entity, añadiremos manualmente un compId al Equipo
                         compId,
                         e.name,
                         e.venue
                     )
                 )
-                Log.i("equipoGuardadoRoom", "${e.name}, $compId")
             }
-            Log.i("despues", "esto es despues del for each en guardado")
             db.close()
         }.start()
     }
-
+    //igualmente al saveEquipos, esta funcion deberia estar en el PosicionManager
+    //esta funcion es casi igual al saveEquipos
     fun savePosiciones(posiciones : ArrayList<Posiciones>, compId : Int, vez : Int){
         val db = Room.databaseBuilder(this, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration()
             .build()
         Thread {
             val posicionDAO = db.posicionDAO()
-
             // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
             if(vez == 1){
                 posicionDAO.delete()
             }
-
             //--------------------------------------------------------------------------
-
-            //Log.i("antes", "esto es antes del for each en guardado")
             posiciones.forEach { p: Posiciones ->
                 posicionDAO.insert(
                     Posicion(
@@ -249,9 +232,7 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                         p.position
                     )
                 )
-                //Log.i("equipoGuardadoRoom", "${p.team.name}, $compId")
             }
-            Log.i("despues", "esto es despues del for each en guardado")
             db.close()
         }.start()
     }
@@ -262,37 +243,35 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         startActivity(intent)
         finish()
     }
-
+    //este es el callback que se ejecutara una vez se traen de internet los equipos en una lista
     override fun onSuccess(listaEquipos: ArrayList<Equipos>, compId: Int, vez: Int) {
+        //se procede a guardarla lista en el SQLite
         saveEquipos(listaEquipos, compId, vez)
     }
-
+    //este es el error que devolvera si falla la descarga de internetlos equipos
     override fun onError(msg: String) {
 
         TODO("Not yet implemented")
     }
-
+    //este es el onClick asignados a cada view del recyclerView para pasar a la vista de
+    //equipos correspondiente a cada competencia
     override fun onClick(id : String) {
         Toast.makeText(this, id, Toast.LENGTH_SHORT).show()
         val id : Int = id.toInt()
         val intent = Intent()
         intent.setClass(this, FuvolActivity::class.java)
+        //pasamos el compId de la competencia correspondiente al siguiente activity
         intent.putExtra("idCompe", id)
         startActivity(intent)
         finish()
 
     }
-
+    //esta funcion se llamara una vez se traen las posiciones de los equipos de internet
     override fun onSuccessPos(listaPosiciones: ArrayList<Posiciones>, compId: Int, vez: Int) {
         savePosiciones(listaPosiciones, compId, vez)
-        /*listaPosiciones.forEach{p : Posiciones ->
-            Log.i("peticionPosiciones", "puntaje: ${p.points}, nombre: ${p.team.name}, competicion: $compId, standing : ${p.position}")
-        }*/
-
     }
-
+    //esta funcion se llamara si el pedido de la lista de posiciones falla
     override fun onErrorPos(msg: String) {
         TODO("Not yet implemented")
     }
-
 }

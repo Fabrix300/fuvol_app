@@ -23,27 +23,36 @@ class FuvolActivity : AppCompatActivity()  {
     *
     * */
 
+    //instanciamos las variables del activity como array de fragments, del drawerLayout y
+    //la id de la competencia que le corresponde al activity
     var fragments: ArrayList<Fragment> = ArrayList()
     var dlaFutbol: DrawerLayout? = null
     var idCompe: Int = 0
 
+    //esto se ejecuta en la creacion del activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_futbol)
 
+        //Instanciamos los fragments y los añadimos al array de fragments del activity
         fragments.add(EquiposFragment())
         fragments.add(PosicionesFragment())
 
+        //guardamos el id pasado desde el mainActivity en un bundle
         idCompe = intent.getIntExtra("idCompe", 0)
         val bundle : Bundle = Bundle()
         bundle.putInt("idCompe", idCompe)
 
+        //guardamos el valor del id en el bundle en cada fragment
         fragments[0].arguments = bundle
         fragments[1].arguments = bundle
 
+        //recuperamos el navigationView del XML
         val nviMain = findViewById<NavigationView>(R.id.nviFutbol)
+        //recuperamos el drawerLayout del XML
         dlaFutbol = findViewById(R.id.dlaFutbol)
 
+        //asignamos el listener del navigationView por cada fragment que hemos instanciado
         nviMain.setNavigationItemSelectedListener { item : MenuItem ->
             item.setChecked(true)
             val ft = supportFragmentManager.beginTransaction()

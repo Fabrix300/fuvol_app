@@ -26,13 +26,16 @@ class CompeticionManager {
             return instance!!
         }
     }
-
+    //funcion donde traemos la lista de competiciones desde el SQLite con ROom
     fun getCompeticionesRoom (context: Context, callback: (ArrayList<Competencias>) -> Unit){
+        //instanciamos la db
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
+            //instanciamos el DAO
             val competicionDAO = db.competicionDAO()
-
+            //declaramos una lista de competencias
             val CompeticionList = ArrayList<Competencias>()
+            //traemos el id, nombre y numero de seasons de cada competicion
             competicionDAO.findAll().forEach{ c : Competencia ->
                 CompeticionList.add(
                     Competencias(
@@ -43,20 +46,12 @@ class CompeticionManager {
                 )
                 Log.i("room", c.name)
             }
+            //retornamos en callback la lista de competiciones
             callback(CompeticionList)
         }.start()
 
     }
-
-    fun getCompeticiones(context : Context): ArrayList<Competencias>{
-
-        if(competiciones.isNullOrEmpty()){
-            return ArrayList<Competencias>()
-        }else{
-            return competiciones!!
-        }
-    }
-
+    //recibimos una lista de competencias y lo guardamos en el manager
     fun setCompeticion(competiciones: ArrayList<Competencias>){
         this.competiciones = competiciones
     }

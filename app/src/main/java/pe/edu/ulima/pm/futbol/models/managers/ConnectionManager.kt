@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class ConnectionManager {
-
+    //decalaramos la cariable de retrofit
     private var retrofit: Retrofit? = null
 
     companion object{

@@ -49,12 +49,9 @@ class EquipoManager {
                 if(response.code() == 200 && response.body() != null){
                     val ListaEquipos = response.body()!!.teams
                     for (equi in ListaEquipos){
-                        //Log.i("equ" , "Competicion: ${idComp}, Equipo: ${equi.name}, Venue : ${equi.venue}")
                         equiList.add(equi)
                     }
                     contador += 1
-                    //equipos.addAll(equiList)
-                    //saveEquipos(equiList!!, context)
                     callback.onSuccess(equiList, idComp, contador)
                 }else{
                     Toast.makeText( context, "Error", Toast.LENGTH_SHORT).show()
@@ -64,23 +61,18 @@ class EquipoManager {
                 TODO("Not yet implemented")
             }
         })
-        //callback(equiList)
-        /*contador += 1
-        if(contador == 3){
-            saveEquipos(equipos, context)
-        }*/
-    }
 
-    fun setEquipo(equip: ArrayList<Equipos>){
-        this.equipos = equip
     }
-
+    //funcion donde recuperamos la lista de equipos con Room desde el SQLite
     fun getEquiposRoom (context: Context, compId: Int, callback: (ArrayList<Equipos>) -> Unit ){
+        //hacemos la conexion por Room al SQLite
         val db = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "Futbol").fallbackToDestructiveMigration().build()
         Thread{
+            //instanciamos el DAO
             val equipoDAO = db.equipoDAO()
-
+            //instanciamos la lista de equipos
             val equipoList = ArrayList<Equipos>()
+            //traemos el nombre y el estadio de cada equipo
             equipoDAO.findByComp(compId).forEach{ e : Equipo ->
                 equipoList.add(Equipos(
                     e.name,
@@ -89,32 +81,8 @@ class EquipoManager {
                 )
                 Log.i("equipoRoom", "${e.name}, $compId")
             }
+            //retornamos la lista de equipos
             callback(equipoList)
-        }.start()
-    }
-
-    fun saveEquipos(equipos : ArrayList<Equipos>, context : Context, compId: Int) {
-        val db = Room.databaseBuilder(context, AppDatabase::class.java, "Futbol")
-            .fallbackToDestructiveMigration().build()
-        Thread {
-            val equipoDAO = db.equipoDAO()
-
-            // para borrar la tabla solo cuando ya esta creada y es de pruebas--------------------
-            //equipoDAO.delete()
-            //--------------------------------------------------------------------------
-
-            equipos.forEach { e: Equipos ->
-                Log.i("Loque quieras", e.name)
-                equipoDAO.insert(
-                    Equipo(
-                        0,
-                        compId,
-                        e.name,
-                        e.venue
-                    )
-                )
-            }
-
         }.start()
     }
 }
