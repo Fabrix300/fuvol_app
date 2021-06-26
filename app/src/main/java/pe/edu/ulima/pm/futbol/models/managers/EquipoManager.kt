@@ -29,9 +29,11 @@ class EquipoManager {
     private var contador = 0
     var equipos : ArrayList<Equipos> = ArrayList<Equipos>()
 
+    //Creamos el singleton de EquipoManager y su función para que devuelva su instancia
     companion object {
         private var instance: EquipoManager? = null
 
+        //funcion para que devuelva la instancia
         fun getInstance(): EquipoManager {
             if (instance == null) {
                 instance = EquipoManager()
@@ -40,6 +42,11 @@ class EquipoManager {
         }
     }
 
+    //Funcion donde traemos el Json del API parseado gracias al GSON en un Response que usa un objeto de tipo
+    // EquipGeneral, del cual, extraemos su lista "teams" la cual es la lista de los equipos relacionados a
+    // una competencia y la guardamos en ListaEquipos para manipularlo.
+    //Por medio del callback de tipo onGetTeamsDone definido en los parámetros de la funcion, podemos llamar
+    // en el main activity para posteriormente guardar estos equipos en SQLite
     fun getEquipos(context : Context, idComp : Int, callback: onGetTeamsDone){
         val equiList: ArrayList<Equipos> = ArrayList<Equipos>()
         val retrofit = ConnectionManager.getInstance().getRetrofit()
@@ -47,16 +54,24 @@ class EquipoManager {
         equipService.getEquipos(idComp).enqueue(object : Callback<EquipGeneral> {
             override fun onResponse(call: Call<EquipGeneral>, response: Response<EquipGeneral>) {
                 if(response.code() == 200 && response.body() != null){
+                    //acá hacemos que ListaEquipos valga la lista "teams" del objeto EquipGeneral, el cual está
+                    // en el body del response
                     val ListaEquipos = response.body()!!.teams
                     for (equi in ListaEquipos){
+                        //hacemos que cada equipo en  ListaEquipos se añada a equiList que es una lista generada en
+                        //esta misma funcion. Parece innecesario viendolo ahora pero como la app funciona no queremos
+                        //tocarla, puede que algo deje de funcionar
                         equiList.add(equi)
                     }
                     contador += 1
+                    //por medio de este callback podemos llamarla desde el mainActivity para guardar los equipos
+                    //en Room una vez termine esta extracción desde la API de internet.
                     callback.onSuccess(equiList, idComp, contador)
                 }else{
                     Toast.makeText( context, "Error", Toast.LENGTH_SHORT).show()
                 }
             }
+            //Funcion de falla
             override fun onFailure(call: Call<EquipGeneral>, t: Throwable) {
                 TODO("Not yet implemented")
             }

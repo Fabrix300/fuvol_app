@@ -19,8 +19,7 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:textSize="20sp"
-        android:textColor="@color/black"
-        android:onClick="pasar"/>
+        android:textColor="@color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_am_competencias"

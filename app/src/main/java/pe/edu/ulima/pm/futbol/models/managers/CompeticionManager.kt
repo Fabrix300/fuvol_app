@@ -16,9 +16,11 @@ class CompeticionManager {
 
     private var competiciones: ArrayList<Competencias>? = null
 
+    //Creamos el singleton de CompeticionManager y su función para que devuelva su instancia
     companion object{
         private var instance: CompeticionManager? = null
 
+        //funcion para que devuelva la instancia
         fun getInstance(): CompeticionManager {
             if(instance == null){
                 instance = CompeticionManager()

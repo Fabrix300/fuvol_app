@@ -237,12 +237,6 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         }.start()
     }
 
-    fun pasar(v: View){
-        val intent = Intent()
-        intent.setClass(this, FuvolActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
     //este es el callback que se ejecutara una vez se traen de internet los equipos en una lista
     override fun onSuccess(listaEquipos: ArrayList<Equipos>, compId: Int, vez: Int) {
         //se procede a guardarla lista en el SQLite
