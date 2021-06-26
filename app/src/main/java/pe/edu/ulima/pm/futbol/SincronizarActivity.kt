@@ -14,17 +14,21 @@ class SincronizarActivity: AppCompatActivity() {
     *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
     *  - FABRICIO SOTELO PARRA            20171497
     *
+    * PARA PROBAR EL APP, USAR LAS COMPETICIONES: "Campeonato Brasileiro Serie A (id: 2013)", "Premier League (id: 2021)", "Championship (id: 2016)"
+    *
     * */
 
-    private var tvAsSincronizar: TextView? = null
+    //creamos el boton de la actividad Sincronizar
     private var btAsSincronizar: AppCompatButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sincronizar)
-        if(IsFirstTime()){
 
-            tvAsSincronizar = findViewById(R.id.tv_as_competencias)
+        //En este bloque hacemos una verificación si es que es la primera vez que abre la app.
+        if(IsFirstTime()){
+            //Si es la primera vez, se obtiene el boton de la actividad, asignándolo a "btAsSincronizar" y
+            // le agrergamos un onClickListener que simplemente pasará a la siguiente actividad "MainActivity"
             btAsSincronizar = findViewById(R.id.bt_as_sincronizar)
 
             btAsSincronizar!!.setOnClickListener {
@@ -35,6 +39,7 @@ class SincronizarActivity: AppCompatActivity() {
             }
 
         }else{
+            //Si no es la primera vez que se abre la aplicación se procede a pasar de frente al "MainActivity"
             val intent = Intent()
             intent.setClass(this, MainActivity::class.java)
             startActivity(intent)
@@ -42,6 +47,8 @@ class SincronizarActivity: AppCompatActivity() {
         }
     }
 
+    //Función para obtener de los sharedPreferences el boolean "FIRST_TIME" el que indica si es que es la primera
+    // vez que se abre la app
     private fun IsFirstTime() : Boolean{
         val valor = getSharedPreferences("USERS_DATA",
         Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)

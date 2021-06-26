@@ -19,6 +19,8 @@ class FuvolActivity : AppCompatActivity()  {
     *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
     *  - FABRICIO SOTELO PARRA            20171497
     *
+    * PARA PROBAR EL APP, USAR LAS COMPETICIONES: "Campeonato Brasileiro Serie A (id: 2013)", "Premier League (id: 2021)", "Championship (id: 2016)"
+    *
     * */
 
     var fragments: ArrayList<Fragment> = ArrayList()

@@ -34,8 +34,12 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
     *  - DIEGO ANTONIO ESQUIVEL PATIÑO    20170532
     *  - FABRICIO SOTELO PARRA            20171497
     *
+    * PARA PROBAR EL APP, USAR LAS COMPETICIONES: "Campeonato Brasileiro Serie A (id: 2013)", "Premier League (id: 2021)", "Championship (id: 2016)"
+    *
     * */
 
+    //Acá creamos variables que contendrán textView, el recyclerView de la actividad y dos listas que se utilizarán
+    // después.
     var tvAmCompetencias: TextView? = null
     var rvCompetencias: RecyclerView? = null
     var compeList: ArrayList<Competencias>? = null
@@ -45,25 +49,42 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Instanciamos algunas variables, compeList y equiList le asignamos unas listas vacías de tipo Competencias
+        // y Equipos respectivamente y obtenemos el textView y el recyclerView de la actividad:
         compeList = ArrayList<Competencias>()
         equiList = ArrayList<Equipos>()
         tvAmCompetencias = findViewById(R.id.tv_am_competencias)
         rvCompetencias = findViewById(R.id.rv_am_competencias)
 
+        //En esta comprobación gigante, se obtiene el valor del boolean del sharedPreference "FIRST_TIME",
+        // valor con el cual procedemos a sincronizar con el api en caso sea true, o procedemos a obtener data
+        // de Room en caso sea falso.
         if(getSharedPreferences("USERS_DATA",
             Context.MODE_PRIVATE).getBoolean("FIRST_TIME",true)){
             val retrofit = ConnectionManager.getInstance().getRetrofit()
             val compeService = retrofit.create<CompeService>()
+            //Con este servicio de Retrofit compService, hacemos un call al api para obtener las competiciones
+            //que nos brinda, guardandolo en un objeto de tipo "CompeGeneral"
             compeService.getCompeticiones().enqueue(object : Callback<CompeGeneral> {
                 override fun onResponse(call: Call<CompeGeneral>, response: Response<CompeGeneral>) {
+                    //Comprobamos si la respuesta del servidor no es vacía y fue correcta
                     if(response.code() == 200 && response.body() != null){
+                        //Si es correcta, procedemos a tomar la lista de competiciones del body del objeto CompeGeneral
+                        //y lo guardamos en la lista "ListaCompetencias"
                         val ListaCompetencias = response.body()!!.competitions
+                        //Contador a usar para solo obtener los equipos de las primeras 3 competiciones que lleguen
                         var counter =1
+                        //Obtenemos las instancias de los singleton "EquipoManager" y "PosicionManager"
                         val eManager = EquipoManager.getInstance()
                         val pManager = PosicionManager.getInstance()
+                        //En este for, añadimos cada competencia en "ListaCompetencias" a la lista ...>
                         for (compe in ListaCompetencias){
                             Log.i("waw", compe.id.toString())
+                            // >... "compeList" aquí
                             compeList!!.add(compe)
+                            // Usando el contador mencionado, llamamos las primeras 3 veces a las funciones "getEquipos" y
+                            // "getPosiciones" de sus respectivos singleton (Managers) para que traigan los equipos y las
+                            //listas de posiciones de la respectiva competencia tomada en este for en el que nos encontramos.
                             if(counter < 4){
                                 /*EquipoManager.getInstance().getEquipos(this@MainActivity,compe.id, {listaEquipos : ArrayList<Equipos> ->
                                     if(counter == 3){
@@ -73,6 +94,10 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                                         saveEquipos(listaEquipos!!)
                                     }
                                 })*/
+
+                                //Llamamos a los métodos de los managers de "Equipos" y "Posiciones",
+                                //utilizando el id de la competicion para hacer las consultas a la api respectivas,
+                                // puesto que estas consultas a la api necesitan de la id de la competición
                                 eManager.getEquipos(this@MainActivity,compe.id, this@MainActivity)
                                 pManager.getPosiciones(this@MainActivity, compe.id, this@MainActivity)
                                 /*if(counter == 3){
@@ -81,10 +106,16 @@ class MainActivity : AppCompatActivity(), onGetTeamsDone, OnCompetenciaItemClick
                                     }
                                     saveEquipos(equiList!!)
                                 }*/
+
+                                //Sumamos el counter para que solo podamos llegar a 3 en este if, y solo ejecutar las consultas
+                                // de equipos y posiciones para las 3 primeras competiciones
                                 counter += 1
                             }
                         }
+                        //llamamos al competicion manager (que es un singleton) para guardar la lista "compeList"
+                        // en su variable "competiciones"
                         CompeticionManager.getInstance().setCompeticion(compeList!!)
+                        //Llamamos a la función saveCompeticiones...............................................
                         saveCompeticiones(compeList!!,{variable : Boolean ->
                             CompeticionManager.getInstance().getCompeticionesRoom(applicationContext, {competencias : ArrayList<Competencias> ->
 
